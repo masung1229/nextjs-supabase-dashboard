@@ -9,7 +9,12 @@ export default async function DashboardLayout({
 }: {
   children?: React.ReactNode
 }) {
-  const { user } = await getUserAPI()
+  const { user, error } = await getUserAPI()
+
+  if (error) {
+    console.error('Error in DashboardLayout:', error)
+    redirect('/auth/signin')
+  }
 
   if (!user) redirect('/auth/signin')
   if (user?.is_ban) redirect('/auth/blocked')

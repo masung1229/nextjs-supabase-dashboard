@@ -66,8 +66,8 @@ The folder and file structure is based on nextjs app router [next.js project str
 
 Find and replace the following text in `supabase/seed.sql` and run sql.
 
-- `YOUR_BUCKET_ID`
-- `username@example.com`
+- `dashboard-test`
+- `airhole20@gmail.com`
 
 Cloning a repository.
 

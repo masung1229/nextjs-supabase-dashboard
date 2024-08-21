@@ -12,7 +12,12 @@ import { AppPanel } from '@/app/dashboard/components/app-panel'
 import { getUserAPI } from '@/queries/server/users'
 
 export default async function DashboardPage() {
-  const { user } = await getUserAPI()
+  const { user, error } = await getUserAPI()
+
+  if (error) {
+    console.error('Error in DashboardPage:', error)
+    redirect('/auth/signin')
+  }
 
   if (!user) redirect('/auth/signin')
 

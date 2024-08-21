@@ -18,9 +18,14 @@ export async function getUserAPI(
     url = `/api/v1/user?id=${session?.user?.id}`
   }
 
-  if (!url) return { user: null }
+  if (!url) return { user: null, error: null }
 
   const { data: user, error } = await fetcher<UserAPI>(url)
 
-  return error ? { user: null } : { user }
+  if (error) {
+    console.error('Error fetching user:', error)
+    return { user: null, error }
+  }
+
+  return { user, error: null }
 }

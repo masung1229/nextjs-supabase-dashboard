@@ -22,30 +22,33 @@ class SupabaseUploadAdapter {
   upload(): Promise<UploadResponse> {
     return this.loader.file.then((file: File | null) => {
       return new Promise((resolve, reject) => {
-        const supabase = createClient()
-
-        const bucketId = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!
-        const folder = globalThis.localStorage.getItem('ckeditor5:uploadFolder')
-        const path = folder && file?.name ? `${folder}/${file?.name}` : null
-
-        if (file && path) {
-          supabase.storage
-            .from(bucketId)
-            .upload(path, file, { upsert: true })
-            .then((uploaded) => {
-              if (uploaded?.error) {
-                reject('The file cannot be uploaded.')
-              } else {
-                const result = supabase.storage
-                  .from(bucketId)
-                  .getPublicUrl(uploaded?.data?.path)
-                this.loader.uploaded = file?.size
-                resolve({ default: result?.data?.publicUrl })
-              }
-            })
-        } else {
+        if (!file) {
           reject('File not found.')
+          return
         }
+
+        const supabase = createClient()
+        const bucketId = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET!
+        const folder = globalThis.localStorage.getItem('ckeditor5:uploadFolder') || 'uploads'
+        const path = `${folder}/${Date.now()}_${file.name}`
+
+        supabase.storage
+          .from(bucketId)
+          .upload(path, file, { upsert: true })
+          .then((uploaded) => {
+            if (uploaded.error) {
+              reject(uploaded.error.message)
+            } else {
+              const result = supabase.storage
+                .from(bucketId)
+                .getPublicUrl(uploaded.data.path)
+              this.loader.uploaded = file.size
+              resolve({ default: result.data.publicUrl })
+            }
+          })
+          .catch((error) => {
+            reject(error.message)
+          })
       })
     })
   }
